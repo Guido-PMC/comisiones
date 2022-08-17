@@ -40,6 +40,7 @@ class client:
 def pushToZabbix(nombreHost, value, key):
     stream = os.popen("zabbix_sender -z '54.92.215.92'    -s "+nombreHost+" -k "+key+" -o "+value)
     output = stream.read()
+    print(output)
     stream.close()
 
 def createSheet(documento,name,row,col):
