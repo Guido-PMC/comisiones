@@ -37,6 +37,11 @@ class client:
     def showAll(self):
         return self.id,self.name, self.commission, self.totalMined, self.minerType,self.paymentPending,self.cashPaymentPending,0
 
+def pushToZabbix(nombreHost, value, key):
+    stream = os.popen("zabbix_sender -z '54.92.215.92'    -s "+nombreHost+" -k "+key+" -o "+value)
+    output = stream.read()
+    stream.close()
+
 def createSheet(documento,name,row,col):
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name(credenciales, scope)
@@ -285,4 +290,5 @@ while True:
         telegram_message(f"Automatismo comisiones de Housing - Horario del script cambiado a {newRunHour}")
         exit()
     schedule.run_pending()
+    pushToZabbix("comisiones", "1", "application.status"):
     time.sleep(10)
