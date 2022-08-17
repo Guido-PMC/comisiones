@@ -291,5 +291,5 @@ while True:
         telegram_message(f"Automatismo comisiones de Housing - Horario del script cambiado a {newRunHour}")
         exit()
     schedule.run_pending()
-    pushToZabbix("comisiones", 1, "application.status")
+    pushToZabbix("comisiones", "1", "application.status")
     time.sleep(10)
