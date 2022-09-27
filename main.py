@@ -143,6 +143,31 @@ def getComisionEthereum(id, wallet, comision, inicioPeriodoFacturacion, finPerio
         return 0,0
     return clientComision, float(totalminado)
 
+def getComisionEthereumTwoMiners( wallet,inicioPeriodoFacturacion, finPeriodoFacturacion,):
+    print(inicioPeriodoFacturacion)
+    print(finPeriodoFacturacion)
+    tempEthWallet = 0
+    try:
+        URL = "https://etc.2miners.com/api/accounts/"
+        URL = URL + wallet
+        r = requests.get(url = URL)
+        data = r.json()
+        #print(data)
+        for x in data["payments"]:
+            if (inicioPeriodoFacturacion < x["timestamp"] and x["timestamp"]  > finPeriodoFacturacion):
+                monto = x["amount"]/1000000000
+                tempEthWallet = tempEthWallet + monto
+        totalminado = str(tempEthWallet)#[:7]
+        totalminado = totalminado[:7]
+        clientComision = (float(totalminado) * float(comision) /100)
+        clientComision = str(clientComision)[:9]+str(id)
+        clientComision = float(clientComision)
+    except Exception as e:
+        print (e)
+        return 0,0
+    return clientComision, float(totalminado)
+
+
 def getUnixTimeStamp(mesInicio,mesFin,diaInicio,diaFin):
     ano = int(datetime.now().year)
     inicioPeriodoFacturacion = date(int(ano),int(mesInicio),int(diaInicio))
@@ -224,7 +249,7 @@ def job(force):
             if (clientsDictionary["status"][i]=="TRUE"):
                 cashPaymentPending = float(clientsDictionary["consumo"][i]) * 24 * 30 / 1000 * float(clientsDictionary["costo kw"][i])
                 if(clientsDictionary["tipo minero"][i]=="ethereum"):
-                    paymentPending, totalMined = getComisionEthereum(clientsDictionary["id"][i], clientsDictionary["wallet"][i], clientsDictionary["comision"][i], startDate, endDate,gwei_to_eth)
+                    paymentPending, totalMined = getComisionEthereumTwoMiners(clientsDictionary["id"][i], clientsDictionary["wallet"][i], clientsDictionary["comision"][i], startDate, endDate,gwei_to_eth)
                 elif(clientsDictionary["tipo minero"][i]=="bitcoin"):
                     paymentPending, totalMined = 0,0
                 clientObj = client(clientsDictionary["id"][i],clientsDictionary["status"][i],clientsDictionary["fecha inicio"][i],clientsDictionary["tipo minero"][i],clientsDictionary["tipo comision"][i],clientsDictionary["comision"][i],clientsDictionary["consumo"][i],clientsDictionary["nombre"][i],clientsDictionary["wallet"][i],totalMined,paymentPending,cashPaymentPending)
@@ -260,7 +285,7 @@ def manualJob(clientId):
     if (clientDf["status"]=="TRUE"):
         cashPaymentPending = float(clientDf["consumo"]) * 24 * 30 / 1000 * float(clientDf["costo kw"])
         if(clientDf["tipo minero"]=="ethereum"):
-            paymentPending, totalMined = getComisionEthereum(clientDf["id"], clientDf["wallet"], clientDf["comision"], startDate, endDate,gwei_to_eth)
+            paymentPending, totalMined = getComisionEthereumTwoMiners(clientDf["id"], clientDf["wallet"], clientDf["comision"], startDate, endDate,gwei_to_eth)
             telegram_message(f"Cliente: {clientDf['nombre']}\nMoneda: Ethereum \nWallet: {clientDf['wallet']}\nComision: {clientDf['comision']}\nPeriodo Calculado: {diaInicio}/{mesInicio} - {diaFin}/{mesFin}\nTotal Minado por Wallet: {totalMined}\nA cobrar por PMC ARS: *{(cashPaymentPending)}*\nA cobrar por PMC: *{paymentPending}*\n\n*Por favor enviar exactamente: {str(float(paymentPending))[:11]} a la siguiente direccion RED BEP20* _(comision de Binance no sumada, por favor agregar antes de transferir)_\n\n*Por favor enviar exactamente: {cashPaymentPending} al CBU / ALIAS: 20396565154.LEMON* \n\nWallet PMC: 0x34fa7b1abfd6e397de3c39934635fedb925eea4d")
 
         elif(clientDf["tipo minero"]=="bitcoin"):
