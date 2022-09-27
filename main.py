@@ -150,6 +150,8 @@ def getComisionEthereumTwoMiners(id, wallet, comision, inicioPeriodoFacturacion,
     tempEthWallet = 0
 
     try:
+        comision = comision[:-1]
+        comision = comision.replace("," , ".")
         URL = "https://etc.2miners.com/api/accounts/"
         URL = URL + wallet
         r = requests.get(url = URL)
