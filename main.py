@@ -143,10 +143,12 @@ def getComisionEthereum(id, wallet, comision, inicioPeriodoFacturacion, finPerio
         return 0,0
     return clientComision, float(totalminado)
 
-def getComisionEthereumTwoMiners( wallet,inicioPeriodoFacturacion, finPeriodoFacturacion,):
-    print(inicioPeriodoFacturacion)
-    print(finPeriodoFacturacion)
+def getComisionEthereumTwoMiners(id, wallet, comision, inicioPeriodoFacturacion, finPeriodoFacturacion, gwei_to_eth):
+    #sanitizo Comision
+    if (id < 10):
+        id = "0"+str(id)
     tempEthWallet = 0
+
     try:
         URL = "https://etc.2miners.com/api/accounts/"
         URL = URL + wallet
